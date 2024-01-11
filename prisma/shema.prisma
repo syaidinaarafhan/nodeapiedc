@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Transaksis {
+  id          Int       @id @default(autoincrement())
+  userId      Int       
+  traceNumber Int       @default(dbgenerated("floor(random() * 1000000)::int"))
+  date        DateTime  @default(now())
+  apprCode    Int       @default(dbgenerated("floor(random() * 1000000)::int"))
+  batch       Int       @default(dbgenerated("floor(random() * 1000000)::int"))
+  refNumber   Int       @default(dbgenerated("(floor(random() * 900000000) + 100000000)::int"))
+  totalHarga  Int
+  settlement  String    @default("")
+  user        Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Users {
+  id          Int       @id @default(autoincrement())
+  name        String
+  password    String
+  cards       Cards?
+  transaksis  Transaksis[]
+}
+
+model Cards {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @unique
+  pin           Int       
+  noKartu       String    
+  cardExp       String  
+  password      String  
+  user          Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nominalLimit  Float     
+  deposit       Float    
+}
